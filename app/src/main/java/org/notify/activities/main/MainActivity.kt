@@ -1,5 +1,6 @@
 package org.notify.activities.main
 
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Bundle
@@ -17,14 +18,23 @@ import androidx.core.content.ContextCompat
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textview.MaterialTextView
 import org.notify.R
+import org.notify.activities.qrcode.CameraActivity
 
 class MainActivity : AppCompatActivity() {
+    private lateinit var actionButton: MaterialButton
     private lateinit var view: LinearLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(createView())
         window.statusBarColor = ContextCompat.getColor(this, R.color.background)
+        app()
+    }
+
+    private fun app() {
+        actionButton.setOnClickListener {
+            startActivity(Intent(this@MainActivity,CameraActivity::class.java))
+        }
     }
 
     private fun createView(): View {
@@ -57,7 +67,7 @@ class MainActivity : AppCompatActivity() {
                 layoutParams = ViewGroup.LayoutParams(MATCH_PARENT, WRAP_CONTENT)
                 gravity = Gravity.CENTER
             })
-            addView(MaterialButton(this@MainActivity).apply {
+            actionButton = MaterialButton(this@MainActivity).apply {
                 val iconSize =
                     resources.getDimensionPixelSize(R.dimen.icon_size) // Define your icon size in resources (e.g., dimens.xml)
 
@@ -73,7 +83,8 @@ class MainActivity : AppCompatActivity() {
                 iconGravity = MaterialButton.ICON_GRAVITY_TEXT_TOP
                 setIconSize(iconSize - (iconSize * 0.4).toInt())
 
-            })
+            }
+            addView(actionButton)
 
             addView(LinearLayout(this@MainActivity).apply {
                 orientation = LinearLayout.HORIZONTAL
