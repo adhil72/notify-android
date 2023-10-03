@@ -1,6 +1,7 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -41,12 +42,10 @@ dependencies {
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("com.google.android.material:material:1.9.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
-    implementation("androidx.camera:camera-camera2:1.4.0-alpha01")
-    implementation("androidx.camera:camera-lifecycle:1.4.0-alpha01")
-    implementation("androidx.camera:camera-view:1.4.0-alpha01")
-
-
-
+    implementation("com.squareup.okhttp3:mockwebserver:4.10.0")
+    implementation("com.google.zxing:core:3.4.1")
+    implementation("com.journeyapps:zxing-android-embedded:4.2.0")
+    implementation("com.google.firebase:firebase-messaging-ktx:23.2.1")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")

@@ -1,28 +1,115 @@
 package org.notify.activities.main
 
+import Axios
+import android.app.Activity
+import android.app.AlertDialog
 import android.content.Intent
+import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.Typeface
+import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
+import android.util.Log
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+import android.widget.Button
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.TextView
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textview.MaterialTextView
+import com.google.firebase.messaging.FirebaseMessaging
+import org.json.JSONObject
 import org.notify.R
 import org.notify.activities.qrcode.CameraActivity
+import org.notify.api.Auth
+import org.notify.helpers.SharedPreferencesManager
+import org.notify.helpers.Utils
+
 
 class MainActivity : AppCompatActivity() {
+    private lateinit var statusView: TextView
+    private lateinit var infoText: TextView
+    private lateinit var connectedLayout: RelativeLayout
     private lateinit var actionButton: MaterialButton
     private lateinit var view: LinearLayout
+
+    val cameraActivityResultLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val dataString = result.data?.getStringExtra("data")
+            if (dataString != null && dataString != "") {
+                val data = JSONObject(dataString)
+                Axios.setDefaultHeaders(HashMap<String, String>().apply {
+                    put("Authorization", "Bearer ${data.getString("access")}")
+                })
+
+                FirebaseMessaging.getInstance().token.addOnSuccessListener { token ->
+                    var body = JSONObject().apply {
+                        put("token", token)
+                        put("name", Utils.deviceName())
+                        put("_id", data.getString("token"))
+                        put("uid", Utils.getAndroidId(this@MainActivity))
+                    }
+                    Auth.validateAddRequest(body) { data ->
+                        if (data.getString("message")
+                                .equals("device already added") || data.getString("message")
+                                .equals("device added")
+                        ) {
+                            SharedPreferencesManager(this@MainActivity).saveValue(
+                                "_id",
+                                data.getJSONObject("data").getString("_id")
+                            )
+                            this@MainActivity.runOnUiThread {
+                                onConnected()
+                            }
+                        } else {
+                            AlertDialog.Builder(this@MainActivity).apply {
+                                setMessage("Some problems in login in")
+                            }.create().show()
+                        }
+                    }
+                }
+
+
+            }
+        } else {
+
+        }
+    }
+
+    fun onConnected(){
+
+        if (SharedPreferencesManager(this@MainActivity).getValue("_id","it is null")=="it is null"){
+            connectedLayout.visibility = View.GONE
+            actionButton.visibility = View.VISIBLE
+
+            infoText.text = "tap to connect"
+            statusView.text = "inactive"
+            statusView.setTextColor(Color.RED)
+        }else{
+            connectedLayout.visibility = View.VISIBLE
+            actionButton.visibility = View.GONE
+
+            infoText.text = "connected"
+            statusView.text = "active"
+            statusView.setTextColor(Color.GREEN)
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        onConnected()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,7 +120,10 @@ class MainActivity : AppCompatActivity() {
 
     private fun app() {
         actionButton.setOnClickListener {
-            startActivity(Intent(this@MainActivity,CameraActivity::class.java))
+
+
+            cameraActivityResultLauncher.launch(Intent(this, CameraActivity::class.java))
+
         }
     }
 
@@ -60,13 +150,37 @@ class MainActivity : AppCompatActivity() {
             gravity = Gravity.CENTER
             orientation = LinearLayout.VERTICAL
 
-            addView(TextView(this@MainActivity).apply {
+            infoText = TextView(this@MainActivity).apply {
                 text = "Connect"
                 typeface = Typeface.DEFAULT_BOLD
                 textSize = 30f
                 layoutParams = ViewGroup.LayoutParams(MATCH_PARENT, WRAP_CONTENT)
                 gravity = Gravity.CENTER
-            })
+            }
+            addView(infoText)
+
+            connectedLayout = RelativeLayout(this@MainActivity).apply {
+                visibility = View.GONE
+                val iconSize =
+                    resources.getDimensionPixelSize(R.dimen.icon_size)
+                layoutParams = LinearLayout.LayoutParams(iconSize, iconSize).apply {
+                    gravity = Gravity.CENTER
+                }
+
+                background = GradientDrawable().apply {
+                    setStroke(10,Color.GREEN)
+                    cornerRadius = 1000f
+                }
+
+                addView(ImageView(this@MainActivity).apply {
+                    setImageResource(R.drawable.icon_cloud_done_foreground)
+                    layoutParams = RelativeLayout.LayoutParams((iconSize/1.7).toInt(),(iconSize/1.7).toInt()).apply {
+                        addRule(RelativeLayout.CENTER_IN_PARENT)
+                    }
+                })
+            }
+            addView(connectedLayout)
+
             actionButton = MaterialButton(this@MainActivity).apply {
                 val iconSize =
                     resources.getDimensionPixelSize(R.dimen.icon_size) // Define your icon size in resources (e.g., dimens.xml)
@@ -168,19 +282,20 @@ class MainActivity : AppCompatActivity() {
         return RelativeLayout(this@MainActivity).apply {
             layoutParams = ViewGroup.LayoutParams(MATCH_PARENT, WRAP_CONTENT)
             addView(TextView(this@MainActivity).apply {
-                text = "PIXEL 4a 5G"
+                text = Utils.deviceName().uppercase()
                 typeface = Typeface.DEFAULT_BOLD
                 setTextColor(ContextCompat.getColor(this@MainActivity, R.color.color))
             })
 
-            addView(TextView(this@MainActivity).apply {
+            statusView = TextView(this@MainActivity).apply {
                 text = "Inactive"
                 typeface = Typeface.DEFAULT_BOLD
                 setTextColor(Color.RED)
                 layoutParams = RelativeLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT).apply {
                     addRule(RelativeLayout.ALIGN_PARENT_END)
                 }
-            })
+            }
+            addView(statusView)
         }
     }
 }
