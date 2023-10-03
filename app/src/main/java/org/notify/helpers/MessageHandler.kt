@@ -9,7 +9,7 @@ class MessageHandler : FirebaseMessagingService() {
     override fun onMessageReceived(message: RemoteMessage) {
         super.onMessageReceived(message)
 
-        Log.e("FCM", "onMessageReceived: $message")
+        Log.e("FCM", "onMessageReceived: ${message.data}")
     }
 
     override fun onNewToken(token: String) {
