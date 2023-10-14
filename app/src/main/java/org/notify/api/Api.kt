@@ -1,22 +1,26 @@
 package org.notify.api
 
 import Axios
+import android.util.Log
 import org.json.JSONObject
 
-class Auth {
+class Api {
     companion object {
+
+        private fun handleError(error: Throwable){
+            Log.e("UNEXPECTED ERROR", "handleError",error )
+        }
 
         fun validateAddRequest(data: JSONObject, response: (data: JSONObject) -> Unit) {
             Axios.post("/devices/add/validate", data) { res, err ->
-                err?.printStackTrace()
                 if (err != null) {
-                    throw err
+                    handleError(err)
                 } else {
                     try {
                         val body = res?.body
                         if(body!=null)response(JSONObject(body.string()))
-                    } catch (e: Exception) {
-                        throw e
+                    } catch (err: Exception) {
+                        handleError(err)
                     }
                 }
             }
@@ -26,13 +30,13 @@ class Auth {
             Axios.post("/devices/update", data) { res, err ->
                 err?.printStackTrace()
                 if (err != null) {
-                    throw err
+                    handleError(err)
                 } else {
                     try {
                         val responseBody = res?.body?.string()
                         if (responseBody!=null)response(JSONObject(responseBody))
-                    } catch (e: Exception) {
-                        throw e
+                    } catch (err: Exception) {
+                        handleError(err)
                     }
                 }
             }
@@ -42,13 +46,13 @@ class Auth {
             Axios.get("/auth/get/user") { res, err ->
                 err?.printStackTrace()
                 if (err != null) {
-                    throw err
+                    handleError(err)
                 } else {
                     try {
                         val responseBody = res?.body?.string()
                         if(responseBody!=null) response(JSONObject(responseBody))
-                    } catch (e: Exception) {
-                        throw e
+                    } catch (err: Exception) {
+                        handleError(err)
                     }
                 }
             }
@@ -58,7 +62,7 @@ class Auth {
             Axios.post("/devices/remove", JSONObject()) { _, err ->
                 err?.printStackTrace()
                 if (err != null) {
-                    throw err
+                    handleError(err)
                 } else {
                    response()
                 }

@@ -4,7 +4,7 @@ import android.util.Log
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import org.json.JSONObject
-import org.notify.api.Auth
+import org.notify.api.Api
 
 class MessageHandler : FirebaseMessagingService() {
 
@@ -16,6 +16,6 @@ class MessageHandler : FirebaseMessagingService() {
 
     override fun onNewToken(token: String) {
         super.onNewToken(token)
-        Auth.updateToken(JSONObject().apply { put("token",token) }){ Log.e(tag, "onNewToken: token updated" ) }
+        Api.updateToken(JSONObject().apply { put("token",token) }){ Log.e(tag, "onNewToken: token updated" ) }
     }
 }

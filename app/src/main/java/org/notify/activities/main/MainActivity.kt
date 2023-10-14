@@ -30,7 +30,7 @@ import com.google.firebase.messaging.FirebaseMessaging
 import org.json.JSONObject
 import org.notify.R
 import org.notify.activities.qrcode.CameraActivity
-import org.notify.api.Auth
+import org.notify.api.Api
 import org.notify.helpers.Database
 import org.notify.helpers.SharedPreferencesManager
 import org.notify.helpers.Utils
@@ -52,7 +52,7 @@ class MainActivity : AppCompatActivity() {
                     Axios.setDefaultHeaders(HashMap<String, String>().apply { put("Authorization", "Bearer ${data.getString("access")}") })
                     FirebaseMessaging.getInstance().token.addOnSuccessListener { token ->
                         val body = JSONObject().apply { put("token", token);put("name", Utils.deviceName());put("_id", data.getString("token"));put("uid", Utils.getAndroidId(this@MainActivity)) }
-                        Auth.validateAddRequest(body) { data ->
+                        Api.validateAddRequest(body) { data ->
                             Log.e("TAG", ": $data")
                             if (data.getString("message").equals("device already added") || data.getString("message").equals("device added")) {
                                 SharedPreferencesManager(this@MainActivity).saveValue("token", data.getJSONObject("data").getString("token"))
@@ -100,7 +100,7 @@ class MainActivity : AppCompatActivity() {
                     setTitle("Disconnect from server")
                     setMessage("Confirm to disconnect from server")
                     setPositiveButton("Confirm") { _, _ ->
-                        Auth.disconnectDeviceController {
+                        Api.disconnectDeviceController {
                             Axios.setDefaultHeaders(HashMap())
                             this@MainActivity.runOnUiThread { SharedPreferencesManager(this@MainActivity).deleteKey("token");onConnected() }
                         }
