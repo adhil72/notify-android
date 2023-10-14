@@ -1,5 +1,6 @@
 package org.notify.helpers
 
+import android.annotation.SuppressLint
 import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
@@ -57,6 +58,7 @@ class Database(context: Context) :
         db.close()
     }
 
+    @SuppressLint("Range")
     fun getUserData(): UserData? {
         val db = this.readableDatabase
         val cursor = db.query(

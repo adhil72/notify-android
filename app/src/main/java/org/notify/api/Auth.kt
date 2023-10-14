@@ -1,9 +1,7 @@
 package org.notify.api
 
 import Axios
-import android.util.Log
 import org.json.JSONObject
-import org.notify.helpers.Database
 
 class Auth {
     companion object {
@@ -15,8 +13,8 @@ class Auth {
                     throw err
                 } else {
                     try {
-                        val responseBody = res?.body?.string()
-                        response(JSONObject(responseBody))
+                        val body = res?.body
+                        if(body!=null)response(JSONObject(body.string()))
                     } catch (e: Exception) {
                         throw e
                     }
@@ -32,7 +30,7 @@ class Auth {
                 } else {
                     try {
                         val responseBody = res?.body?.string()
-                        response(JSONObject(responseBody))
+                        if (responseBody!=null)response(JSONObject(responseBody))
                     } catch (e: Exception) {
                         throw e
                     }
@@ -48,7 +46,7 @@ class Auth {
                 } else {
                     try {
                         val responseBody = res?.body?.string()
-                        response(JSONObject(responseBody))
+                        if(responseBody!=null) response(JSONObject(responseBody))
                     } catch (e: Exception) {
                         throw e
                     }
@@ -57,7 +55,7 @@ class Auth {
         }
 
         fun disconnectDeviceController(response: () -> Unit){
-            Axios.post("/devices/remove", JSONObject()) { res, err ->
+            Axios.post("/devices/remove", JSONObject()) { _, err ->
                 err?.printStackTrace()
                 if (err != null) {
                     throw err

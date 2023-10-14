@@ -1,6 +1,7 @@
 package org.notify.activities.main
 
 import Axios
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
@@ -34,7 +35,7 @@ import org.notify.helpers.Database
 import org.notify.helpers.SharedPreferencesManager
 import org.notify.helpers.Utils
 
-
+@SuppressLint("SetTextI18n")
 class MainActivity : AppCompatActivity() {
     private lateinit var statusView: TextView
     private lateinit var infoText: TextView
@@ -42,7 +43,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var actionButton: MaterialButton
     private lateinit var view: LinearLayout
 
-    val cameraActivityResultLauncher =
+    private val cameraActivityResultLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
                 val dataString = result.data?.getStringExtra("data")
@@ -50,7 +51,7 @@ class MainActivity : AppCompatActivity() {
                     val data = JSONObject(dataString)
                     Axios.setDefaultHeaders(HashMap<String, String>().apply { put("Authorization", "Bearer ${data.getString("access")}") })
                     FirebaseMessaging.getInstance().token.addOnSuccessListener { token ->
-                        var body = JSONObject().apply { put("token", token);put("name", Utils.deviceName());put("_id", data.getString("token"));put("uid", Utils.getAndroidId(this@MainActivity)) }
+                        val body = JSONObject().apply { put("token", token);put("name", Utils.deviceName());put("_id", data.getString("token"));put("uid", Utils.getAndroidId(this@MainActivity)) }
                         Auth.validateAddRequest(body) { data ->
                             Log.e("TAG", ": $data")
                             if (data.getString("message").equals("device already added") || data.getString("message").equals("device added")) {
@@ -63,7 +64,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-    fun onConnected() {
+    private fun onConnected() {
 
         if (SharedPreferencesManager(this@MainActivity).getValue("token", "it is null") == "it is null") {
             connectedLayout.visibility = View.GONE
@@ -113,7 +114,7 @@ class MainActivity : AppCompatActivity() {
             layoutParams = ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
             setBackgroundColor(ContextCompat.getColor(this@MainActivity, R.color.background))
             orientation = LinearLayout.VERTICAL
-            var p = 50
+            val p = 50
             setPadding(p, 0, p, 0)
             addView(createTopView())
             addView(createTitle())

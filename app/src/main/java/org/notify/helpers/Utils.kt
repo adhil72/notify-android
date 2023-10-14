@@ -1,12 +1,12 @@
 package org.notify.helpers
 
+import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.provider.Settings
 import android.telephony.SmsManager
-import android.widget.Toast
 import java.util.Locale
 
 class Utils {
@@ -23,10 +23,10 @@ class Utils {
                 model.substring(0, 1).uppercase(Locale.getDefault()) + model.substring(1)
                     .lowercase(Locale.getDefault())
 
-            val deviceName = "$manufacturer $model"
-            return deviceName
+            return "$manufacturer $model"
         }
 
+        @SuppressLint("HardwareIds")
         fun getAndroidId(context: Context): String {
             return Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID)
         }
