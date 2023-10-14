@@ -29,4 +29,8 @@ class SharedPreferencesManager(context: Context) {
             else -> throw IllegalArgumentException("Unsupported data type")
         }
     }
+
+    fun deleteKey(key:String){
+        sharedPreferences.edit().remove(key).apply()
+    }
 }

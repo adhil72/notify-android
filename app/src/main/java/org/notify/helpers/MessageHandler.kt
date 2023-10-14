@@ -14,12 +14,9 @@ class MessageHandler : FirebaseMessagingService() {
     }
 
     override fun onNewToken(token: String) {
-        var body = JSONObject().apply {
-            put("token", token)
-            put("name", Utils.deviceName())
-            put("_id", SharedPreferencesManager(this@MessageHandler).getValue("_id",""))
-            put("uid", Utils.getAndroidId(this@MessageHandler))
-        }
+       Auth.updateToken(JSONObject().apply {
+           put("token",token)
+       }){}
         super.onNewToken(token)
     }
 }
