@@ -13,7 +13,7 @@ class Axios {
     companion object {
 
         private var defaultHeaders: MutableMap<String, String> = mutableMapOf()
-        private var BASE_URL: String = "http://192.168.1.21:50000"
+        private var BASE_URL: String = "http://ec2-13-234-112-217.ap-south-1.compute.amazonaws.com:8080"
 
         private val client = OkHttpClient()
 
